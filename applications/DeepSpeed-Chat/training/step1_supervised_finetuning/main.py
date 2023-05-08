@@ -30,6 +30,7 @@ from utils.ds_utils import get_train_ds_config
 from utils.module.lora import convert_linear_layer_to_lora, convert_lora_to_linear_layer, only_optimize_lora_parameters
 from utils.model.model_utils import create_hf_model
 
+from huggingface_hub import HfApi
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -210,6 +211,15 @@ def main():
                             tokenizer,
                             ds_config,
                             disable_dropout=args.disable_dropout)
+    model.push_to_hub("test_right_after_create_hf_model", private=True)
+
+    api = HfApi()
+
+    api.upload_folder(
+        folder_path="/DeepSpeedExamples/applications/DeepSpeed-Chat/requirements.txt",
+        repo_id="danielv835/test_dataset",
+        repo_type="dataset",
+    )
 
     if args.lora_dim > 0:
         model = convert_linear_layer_to_lora(model, args.lora_module_name,
@@ -303,13 +313,21 @@ def main():
         args.global_rank)
     perplexity = evaluation(model, eval_dataloader)
     print_rank_0(f"ppl: {perplexity}", args.global_rank)
-
+    print("saving:")
+    save_hf_format(model, tokenizer, args)
+    save_dir = os.path.join(args.output_dir, sub_folder)
+    print("loading:")
+    hf_model = AutoModelForCausalLM.from_pretrained(save_dir, from_pt=True)
+    print("uploading:")
+    hf_model.push_to_hub("test_before_training", private=True)
+    print("uploaded")
+    
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
             args.global_rank)
         model.train()
-        for step, batch in enumerate(train_dataloader):
+        for step, batch in enumerate(train_dataloader).take(2):
             batch = to_device(batch, device)
             outputs = model(**batch, use_cache=False)
             loss = outputs.loss
@@ -330,6 +348,9 @@ def main():
 
         if args.global_rank == 0:
             save_hf_format(model, tokenizer, args)
+            save_dir = os.path.join(args.output_dir, sub_folder)
+            hf_model = AutoModelForCausalLM.from_pretrained(save_dir, from_pt=True)
+            hf_model.push_to_hub("test_after", private=True)
 
         if args.zero_stage == 3:
             # For zero stage 3, each gpu only has a part of the model, so we need a special save function
