@@ -216,7 +216,7 @@ def main():
     api = HfApi()
 
     api.upload_folder(
-        folder_path="/DeepSpeedExamples/applications/DeepSpeed-Chat/requirements.txt",
+        folder_path="/DeepSpeedExamples/applications/DeepSpeed-Chat/training/step1_supervised_finetuning/training_scripts/single_gpu/",
         repo_id="danielv835/test_dataset",
         repo_type="dataset",
     )
