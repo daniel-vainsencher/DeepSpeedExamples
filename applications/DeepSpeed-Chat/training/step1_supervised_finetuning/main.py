@@ -173,6 +173,10 @@ def parse_args():
 
     return args
 
+def push_model(model, tokenizer, name):
+    model.push_to_hub(name, private=True)
+    tokenizer.push_to_hub(name, private=True)
+
 
 def main():
     args = parse_args()
@@ -211,8 +215,6 @@ def main():
                             tokenizer,
                             ds_config,
                             disable_dropout=args.disable_dropout)
-    #model.push_to_hub("test_right_after_create_hf_model", private=True)
-    tokenizer.push_to_hub("test_right_after_create_hf_model", private=True)
 
     api = HfApi()
 
@@ -314,14 +316,8 @@ def main():
         args.global_rank)
     perplexity = evaluation(model, eval_dataloader)
     print_rank_0(f"ppl: {perplexity}", args.global_rank)
-    print("saving:")
-    save_hf_format(model, tokenizer, args)
-    save_dir = os.path.join(args.output_dir, sub_folder)
-    print("loading:")
-    hf_model = AutoModelForCausalLM.from_pretrained(save_dir, from_pt=True)
-    print("uploading:")
-    hf_model.push_to_hub("test_before_training", private=True)
-    print("uploaded")
+    print("pushing model and tokenizer:")
+    push_model(model, tokenizer, "right_before_training")
     
     for epoch in range(args.num_train_epochs):
         print_rank_0(
@@ -349,9 +345,9 @@ def main():
 
         if args.global_rank == 0:
             save_hf_format(model, tokenizer, args)
-            save_dir = os.path.join(args.output_dir, sub_folder)
+            save_dir = os.path.join(args.output_dir, "")
             hf_model = AutoModelForCausalLM.from_pretrained(save_dir, from_pt=True)
-            hf_model.push_to_hub("test_after", private=True)
+            push_model(hf_model, tokenizer, "test_after")
 
         if args.zero_stage == 3:
             # For zero stage 3, each gpu only has a part of the model, so we need a special save function
