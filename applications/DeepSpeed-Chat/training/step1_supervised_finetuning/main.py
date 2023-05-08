@@ -31,6 +31,7 @@ from utils.module.lora import convert_linear_layer_to_lora, convert_lora_to_line
 from utils.model.model_utils import create_hf_model
 
 from huggingface_hub import HfApi
+import itertools
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -324,7 +325,7 @@ def main():
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
             args.global_rank)
         model.train()
-        for step, batch in enumerate(train_dataloader).take(2):
+        for step, batch in itertools.islice(enumerate(train_dataloader), 2):
             batch = to_device(batch, device)
             outputs = model(**batch, use_cache=False)
             loss = outputs.loss
