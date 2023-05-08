@@ -251,6 +251,37 @@ class OpenaiWebgptcomparisonsDataset(PromptRawDataset):
             'full_text'] + " Assistant: " + response
 
 
+class RedditPersonalFinanceV1(PromptRawDataset):
+    """This dataset has a single column named `converation`, formatted like:
+    <username>: <post/question>\nSelf: <comment/reply>
+    """
+    def __init__(self, output_path, seed, local_rank, dataset_name):
+        super().__init__(output_path, seed, local_rank, dataset_name)
+        self.dataset_name = "danielv835/personal-finance1"
+        self.dataset_name_clean = "personal-finance1"
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return sample['conversation'].str.rsplit('Self:') + "Self:"
+
+    def get_chosen(self, sample):
+        raise(NotImplementedError())
+
+    def get_rejected(self, sample):
+        raise(NotImplementedError())
+
+    def get_prompt_and_chosen(self, sample):
+        return sample["conversation"]
+
+    def get_prompt_and_rejected(self, sample):
+        raise(NotImplementedError())
+
+
 # English dataset
 class StanfordnlpSHPDataset(PromptRawDataset):
 
