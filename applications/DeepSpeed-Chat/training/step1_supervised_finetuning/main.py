@@ -211,7 +211,8 @@ def main():
                             tokenizer,
                             ds_config,
                             disable_dropout=args.disable_dropout)
-    model.push_to_hub("test_right_after_create_hf_model", private=True)
+    #model.push_to_hub("test_right_after_create_hf_model", private=True)
+    tokenizer.push_to_hub("test_right_after_create_hf_model", private=True)
 
     api = HfApi()
 
