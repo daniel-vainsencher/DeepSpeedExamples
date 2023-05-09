@@ -257,8 +257,8 @@ class RedditPersonalFinanceV1(PromptRawDataset):
     """
     def __init__(self, output_path, seed, local_rank, dataset_name):
         super().__init__(output_path, seed, local_rank, dataset_name)
-        self.dataset_name = "danielv835/personal-finance1"
-        self.dataset_name_clean = "personal-finance1"
+        self.dataset_name = "danielv835/pf_coach_v0.1"
+        self.dataset_name_clean = "danielv835_pf_coach_v0.1"
 
     def get_train_data(self):
         return self.raw_datasets["train"]
