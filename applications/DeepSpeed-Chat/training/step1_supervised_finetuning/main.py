@@ -68,6 +68,11 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
+        "--target_model_name",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
         "--per_device_train_batch_size",
         type=int,
         default=16,
@@ -171,6 +176,10 @@ def parse_args():
         ), "--gradient_checkpointing and --only_optimize_lora cannot be enabled at the same time."
 
     return args
+
+def push_model(model, tokenizer, name):
+    model.push_to_hub(name, private=True)
+    tokenizer.push_to_hub(name, private=True)
 
 
 def main():
@@ -330,6 +339,9 @@ def main():
 
         if args.global_rank == 0:
             save_hf_format(model, tokenizer, args)
+            save_dir = os.path.join(args.output_dir, "")
+            hf_model = AutoModelForCausalLM.from_pretrained(save_dir)
+            push_model(hf_model, tokenizer, args.target_model_name)
 
         if args.zero_stage == 3:
             # For zero stage 3, each gpu only has a part of the model, so we need a special save function
