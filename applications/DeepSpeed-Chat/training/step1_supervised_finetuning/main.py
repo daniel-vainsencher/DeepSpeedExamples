@@ -182,7 +182,6 @@ def push_model(model, tokenizer, name):
     model.push_to_hub(name, private=True)
     tokenizer.push_to_hub(name, private=True)
 
-
 def main():
     args = parse_args()
 
@@ -204,6 +203,13 @@ def main():
     ds_config[
         'train_batch_size'] = args.per_device_train_batch_size * torch.distributed.get_world_size(
         ) * args.gradient_accumulation_steps
+    if args.output_dir is not None:
+        ds_config["tensorboard"] = {
+            "enabled": true,
+            "output_path": os.join(args.output_dir, "/ds_logs/"),
+            "job_name": "supervised_fine_tuning",
+        }
+              
 
     # If passed along, set the training seed now.
     set_random_seed(args.seed)
