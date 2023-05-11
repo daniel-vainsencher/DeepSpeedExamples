@@ -30,8 +30,6 @@ from utils.ds_utils import get_train_ds_config
 from utils.module.lora import convert_linear_layer_to_lora, convert_lora_to_linear_layer, only_optimize_lora_parameters
 from utils.model.model_utils import create_hf_model
 
-import itertools
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description=
@@ -205,8 +203,8 @@ def main():
         ) * args.gradient_accumulation_steps
     if args.output_dir is not None:
         ds_config["tensorboard"] = {
-            "enabled": true,
-            "output_path": os.join(args.output_dir, "/ds_logs/"),
+            "enabled": True,
+            "output_path": os.path.join(args.output_dir, "/ds_logs/"),
             "job_name": "supervised_fine_tuning",
         }
               
@@ -325,7 +323,7 @@ def main():
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
             args.global_rank)
         model.train()
-        for step, batch in itertools.islice(enumerate(train_dataloader), 2):
+        for step, batch in enumerate(train_dataloader):
             batch = to_device(batch, device)
             outputs = model(**batch, use_cache=False)
             loss = outputs.loss
