@@ -306,10 +306,10 @@ class RedditPersonalFinanceV2(PromptRawDataset):
         return sample['rejected']
 
     def get_prompt_and_chosen(self, sample):
-        return self.get_prompt() + " Assistant:" + self.get_chosen()
+        return self.get_prompt(sample) + " Assistant:" + self.get_chosen(sample)
 
     def get_prompt_and_rejected(self, sample):
-        return self.get_prompt() + " Assistant:" + self.get_rejected()
+        return self.get_prompt(sample) + " Assistant:" + self.get_rejected(sample)
 
 # English dataset
 class StanfordnlpSHPDataset(PromptRawDataset):
