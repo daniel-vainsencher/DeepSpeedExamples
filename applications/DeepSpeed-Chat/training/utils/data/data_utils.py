@@ -64,6 +64,9 @@ def get_raw_dataset(dataset_name, output_path, seed, local_rank):
     elif "danielv835/pf_coach_v0.1" in dataset_name:
         return raw_datasets.RedditPersonalFinanceV1(output_path, seed, local_rank,
                                                     dataset_name)
+    elif "danielv835/personal_finance_v0.2" in dataset_name:
+        return raw_datasets.RedditPersonalFinanceV2(output_path, seed, local_rank,
+                                                    dataset_name)
     else:
         raise RuntimeError(
             f"We do not have configs for dataset {dataset_name}, but you can add it by yourself in raw_datasets.py."
