@@ -6,7 +6,8 @@ import os
 import torch
 import random
 import numpy as np
-from transformers import set_seed, AutoTokenizer
+from transformers import set_seed, AutoTokenizer, AutoModelForCausalLM
+
 import json
 import deepspeed
 from deepspeed.runtime.zero.partition_parameters import ZeroParamStatus
@@ -74,6 +75,15 @@ def save_hf_format(model, tokenizer, args, sub_folder=""):
     model_to_save.config.to_json_file(output_config_file)
     tokenizer.save_vocabulary(output_dir)
 
+def push_model(model, tokenizer, name):
+    model.push_to_hub(name, private=True)
+    tokenizer.push_to_hub(name, private=True)
+
+def push_model_from_save(model_name, path):
+    hf_model = AutoModelForCausalLM.from_pretrained(path)
+    tokenizer = load_hf_tokenizer(args.model_name_or_path, fast_tokenizer=True)
+    tokenizer.pad_token = tokenizer.eos_token
+    push_model(hf_model, tokenizer, model_name)
 
 def set_random_seed(seed):
     if seed is not None:

@@ -59,6 +59,11 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
+        "--target_model_name",
+        type=str,
+    )
+
+    parser.add_argument(
         "--num_padding_at_beginning",
         type=int,
         default=1,
@@ -340,6 +345,11 @@ def main():
 
         if args.global_rank == 0:
             save_hf_format(rm_model, tokenizer, args)
+            if args.target_model_name:
+                save_dir = os.path.join(args.output_dir, "")
+                hf_model = AutoModelForCausalLM.from_pretrained(save_dir)
+                push_model(hf_model, tokenizer, args.target_model_name)
+
         if args.zero_stage == 3:
             # for zero stage 3, each gpu only has a part of the model, so we need to save the model on each gpu by using DS-Engine
             save_zero_three_model(rm_model,
