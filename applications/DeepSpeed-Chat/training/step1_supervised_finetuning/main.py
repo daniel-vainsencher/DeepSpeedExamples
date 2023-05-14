@@ -25,7 +25,7 @@ from deepspeed.ops.adam import DeepSpeedCPUAdam, FusedAdam
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from utils.data.data_utils import create_prompt_dataset
-from utils.utils import print_rank_0, to_device, save_hf_format, set_random_seed, get_all_reduce_mean, get_optimizer_grouped_parameters, save_zero_three_model, load_hf_tokenizer
+from utils.utils import print_rank_0, to_device, save_hf_format, set_random_seed, get_all_reduce_mean, get_optimizer_grouped_parameters, save_zero_three_model, load_hf_tokenizer, push_model
 from utils.ds_utils import get_train_ds_config
 from utils.module.lora import convert_linear_layer_to_lora, convert_lora_to_linear_layer, only_optimize_lora_parameters
 from utils.model.model_utils import create_hf_model
@@ -174,10 +174,6 @@ def parse_args():
         ), "--gradient_checkpointing and --only_optimize_lora cannot be enabled at the same time."
 
     return args
-
-def push_model(model, tokenizer, name):
-    model.push_to_hub(name, private=True)
-    tokenizer.push_to_hub(name, private=True)
 
 def main():
     args = parse_args()

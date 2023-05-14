@@ -38,7 +38,7 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from utils.data.data_utils import create_prompt_dataset, MiniDataset, DataCollatorRLHF, get_unsupervised_data
-from utils.utils import print_rank_0, to_device, save_hf_format, set_random_seed, get_all_reduce_mean, moving_average, save_zero_three_model, load_hf_tokenizer
+from utils.utils import print_rank_0, to_device, save_hf_format, push_model, set_random_seed, get_all_reduce_mean, moving_average, save_zero_three_model, load_hf_tokenizer
 from utils.module.lora import convert_lora_to_linear_layer
 
 
@@ -90,6 +90,11 @@ def parse_args():
         help=
         "Path to pretrained model or model identifier from huggingface.co/models.",
         required=True)
+    parser.add_argument(
+        "--target_actor_model_name",
+        type=str,
+    )
+
     parser.add_argument(
         "--critic_model_name_or_path",
         type=str,
@@ -488,6 +493,12 @@ def main():
                            tokenizer,
                            args,
                            sub_folder='actor')
+            
+            if args.target_actor_model_name:
+                save_dir = os.path.join(args.output_dir, "actor")
+                hf_model = AutoModelForCausalLM.from_pretrained(save_dir)
+                push_model(hf_model, tokenizer, args.target_actor_model_name)
+
             save_hf_format(rlhf_engine.critic,
                            tokenizer,
                            args,
