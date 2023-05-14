@@ -496,7 +496,7 @@ def main():
             
             if args.target_actor_model_name:
                 save_dir = os.path.join(args.output_dir, "actor")
-                hf_model = AutoModelForCausalLM.from_pretrained(save_dir)
+                hf_model = AutoModelForCausalLM.from_pretrained(save_dir, torch_dtype=torch.float16)
                 push_model(hf_model, tokenizer, args.target_actor_model_name)
 
             save_hf_format(rlhf_engine.critic,

@@ -347,7 +347,7 @@ def main():
             save_hf_format(rm_model, tokenizer, args)
             if args.target_model_name:
                 save_dir = os.path.join(args.output_dir, "")
-                hf_model = AutoModelForCausalLM.from_pretrained(save_dir)
+                hf_model = AutoModelForCausalLM.from_pretrained(save_dir, torch_dtype=torch.float16)
                 push_model(hf_model, tokenizer, args.target_model_name)
 
         if args.zero_stage == 3:
