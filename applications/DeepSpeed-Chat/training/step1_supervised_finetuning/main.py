@@ -103,6 +103,11 @@ def parse_args():
                         type=int,
                         default=1,
                         help="Total number of training epochs to perform.")
+    parser.add_argument("--max_total_steps",
+                        type=int,
+                        default=100000000,
+                        help="Total number of training steps to perform.")
+    
     parser.add_argument(
         "--gradient_accumulation_steps",
         type=int,
@@ -312,7 +317,10 @@ def main():
         args.global_rank)
     perplexity = evaluation(model, eval_dataloader)
     print_rank_0(f"ppl: {perplexity}", args.global_rank)
-    
+
+    total_steps = 0
+    done = False
+
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
@@ -324,6 +332,10 @@ def main():
             loss = outputs.loss
             model.backward(loss)
             model.step()
+            total_steps += 1
+            if total_steps >= args.max_total_steps:
+                done = True
+                break
 
         # Evaluate perplexity on the validation set.
         print_rank_0(
@@ -332,6 +344,8 @@ def main():
         perplexity = evaluation(model, eval_dataloader)
         print_rank_0(f"ppl: {perplexity}", args.global_rank)
         model.tput_timer.update_epoch_count()
+        if done:
+            break
 
     if args.output_dir is not None:
         print_rank_0('saving the final model ...', args.global_rank)
