@@ -333,6 +333,7 @@ def main():
             model.backward(loss)
             model.step()
             total_steps += 1
+            print_rank_0(f"Total steps: {total_steps} / {args.max_total_steps}", args.global_rank)
             if total_steps >= args.max_total_steps:
                 done = True
                 break
