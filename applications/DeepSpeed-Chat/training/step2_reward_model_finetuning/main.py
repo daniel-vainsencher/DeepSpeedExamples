@@ -104,6 +104,10 @@ def parse_args():
                         type=int,
                         default=1,
                         help="Total number of training epochs to perform.")
+    parser.add_argument("--max_total_steps",
+                        type=int,
+                        default=100000000,
+                        help="Total number of training steps to perform.")
     parser.add_argument(
         "--gradient_accumulation_steps",
         type=int,
@@ -313,6 +317,9 @@ def main():
         f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
         args.global_rank)
 
+    total_steps = 0
+    done = False
+
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
@@ -326,6 +333,12 @@ def main():
             rm_model.backward(loss)
             rm_model.step()
             mean_loss += loss.item()
+            total_steps += 1
+            print_rank_0(f"Total steps: {total_steps} / {args.max_total_steps}", args.global_rank)
+            if total_steps >= args.max_total_steps:
+                done = True
+                break
+
         print_rank_0(
             f"Epoch {epoch+1}/{args.num_train_epochs} with loss {mean_loss/(step+1)}",
             args.global_rank)
@@ -338,6 +351,8 @@ def main():
             f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
             args.global_rank)
         rm_model.tput_timer.update_epoch_count()
+        if done:
+            break
 
     if args.output_dir is not None:
         print_rank_0('saving model ...', args.global_rank)
