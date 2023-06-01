@@ -215,13 +215,17 @@ def main():
     # to make it a more meaningful comparison.
     if args.language == "English":
         prompts = [
+            "Human: I already have another gig lined up but still haven't put in my 2 weeks and with finals coming up I don't think I can keep up with my current schedule. Is there a safe way to quit your job without giving 2 weeks notice? Assistant:",
+            "Human: Just wondering if anyone has any advice for a first time home buyer. Right now I'm saving $1,000 a month towards buying a new condo (this money is not touched and will all be used for a down payment).I'll have about $15,000 saved up. What is a good interest rate on a mortgage? Are condos a bad investment? I was thinking about renting the condo out years from now once I'm looking to buy a house. Assistant:",
+            ]
+        """
             "Human: Please tell me about Microsoft in a few sentence? Assistant:",
             "Human: Explain the moon landing to a 6 year old in a few sentences. Assistant:",
             "Human: Write a short poem about a wise frog. Assistant:",
             "Human: Who was president of the United States in 1955? Assistant:",
             "Human: How does a telescope work? Assistant:",
             "Human: Why do birds migrate south for the winter? Assistant:"
-        ]
+        ]"""
     elif args.language == "Chinese":
         prompts = [
             "Human: 请用几句话介绍一下微软? Assistant:",
